@@ -1,13 +1,15 @@
 
 /*@ <answer>
  *
- * Nombre y Apellidos:
+ * Nombre y Apellidos: Steven Mallqui Aguilar
  *
  *@ </answer> */
 
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include <queue>
+
 using namespace std;
 
 /*@ <answer>
@@ -15,12 +17,12 @@ using namespace std;
  Escribe aquí un comentario general sobre la solución, explicando cómo
  se resuelve el problema y cuál es el coste de la solución, en función
  del tamaño del problema.
+
+ N = Nº de cajas abiertas
+ C = Nº de clientes esperando
+
  
  @ </answer> */
-
- int cuestaSumar(priority_queue<int, std::vector<int>, std::greater<int>> q){
-   
- }
 
 
 // ================================================================
@@ -28,26 +30,42 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
+struct cashier {
+  int index, time;
+};
+
+bool operator<(const cashier& a, const cashier& b){
+  return b.time < a.time || (b.time == a.time && b.index < a.index);
+}
+
 bool resuelveCaso() {
+   
+  // leer los datos de la entrada
+  int N; cin >> N;
+  int C; cin >> C;
+  
+  if (N == 0 && C == 0)
+    return false;
+  
+  priority_queue<cashier> super;
 
-   // leer los datos de la entrada
-   int N; cin >> N;
+  // resolver el caso posiblemente llamando a otras funciones
+  for(int i = 1; i <= N; i++){
+    super.push({i, 0});
+  }
 
-   if (N == 0)
-      return false;
+  int timeC;
+  for(int i = 0; i < C; i++){
+    cin >> timeC;
+    cashier counter = super.top();
+    super.pop();
+    super.push({counter.index, counter.time + timeC});
+  }
 
-   // resolver el caso posiblemente llamando a otras funciones
-   priority_queue<int, std::vector<int>, std::greater<int>> minQueue;
-   int valor; 
+  // escribir la solución
+  cout << super.top().index << endl;
 
-   for(int i = 0; i < N; i++){
-      cin >> valor;
-      minQueue.push(valor);
-   }
-   // escribir la solución
-   cout << cuestaSumar(minQueue) << endl;
-
-   return true;
+  return true;
 }
 
 //@ </answer>
