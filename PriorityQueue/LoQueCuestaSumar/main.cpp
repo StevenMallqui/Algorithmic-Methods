@@ -1,13 +1,13 @@
 
 /*@ <answer>
  *
- * Nombre y Apellidos:
+ * Nombre y Apellidos: Steven Mallqui Aguilar
  *
  *@ </answer> */
 
 #include <iostream>
 #include <fstream>
-#include <queue>
+#include "PriorityQueue.h"
 using namespace std;
 
 /*@ <answer>
@@ -18,8 +18,19 @@ using namespace std;
  
  @ </answer> */
 
- int cuestaSumar(priority_queue<int, std::vector<int>, std::greater<int>> q){
-   
+ long long int cuestaSumar(PriorityQueue<long long int> queue, int N){
+   long long int sum1 = 0, sum2 = 0, total = 0, effort = 0;
+   for(int i = 0; i < N - 1; i++){
+      sum1 = queue.top();
+      queue.pop();
+      sum2 = queue.top();
+      queue.pop();
+      total = sum1 + sum2;
+      queue.push(total);  
+      effort += total;    
+   }
+
+   return effort;
  }
 
 
@@ -37,15 +48,16 @@ bool resuelveCaso() {
       return false;
 
    // resolver el caso posiblemente llamando a otras funciones
-   priority_queue<int, std::vector<int>, std::greater<int>> minQueue;
-   int valor; 
+   PriorityQueue<long long int> queue;
+   long long int valor; 
 
    for(int i = 0; i < N; i++){
       cin >> valor;
-      minQueue.push(valor);
+      queue.push(valor);
    }
+
    // escribir la solución
-   cout << cuestaSumar(minQueue) << endl;
+   cout << cuestaSumar(queue, N) << endl;
 
    return true;
 }
