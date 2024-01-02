@@ -7,8 +7,9 @@
 
 #include <iostream>
 #include <fstream>
-#include <queue>
 using namespace std;
+
+#include "PriorityQueue.h"  // propios o los de las estructuras de datos de clase
 
 /*@ <answer>
   
@@ -23,49 +24,42 @@ using namespace std;
 // Escribe el código completo de tu solución aquí debajo
 // ================================================================
 //@ <answer>
+struct Paciente{
+  string nombre;
+  int gravedad, espera;
+};
+
+bool operator<(Paciente const&a, Paciente const&b){
+  return b.gravedad < a.gravedad || (a.gravedad == b.gravedad && a.espera < b.espera);
+}
 
 bool resuelveCaso() {
    
-   // leer los datos de la entrada
-   int mediana, parejas; cin >> mediana; cin >> parejas;
-   
-   if (mediana == 0 && parejas == 0)
-      return false;
-   
-   priority_queue<int> menores;
-   priority_queue<int,vector<int>,greater<int> > mayores;
-   
-   for(int j = 0; j < 2 * parejas; j++){
-      
-      int nuevo, minSize, maxSize; cin >> nuevo;
-     
-      if(nuevo < mediana){
-         menores.push(nuevo);
-      }else{
-         mayores.push(nuevo);
-      }
-      
-      minSize = menores.size();
-      maxSize = mayores.size();
-
-      if(minSize - maxSize > 1){
-         mayores.push(mediana);
-         mediana = menores.top();   
-         menores.pop();
-      }else if(maxSize - minSize > 1){
-         menores.push(mediana);
-         mediana = mayores.top();
-         mayores.pop();
-      }
-
-      if(j % 2 != 0)
-         cout << mediana << " ";
-   }
-
-   // resolver el caso posiblemente llamando a otras funciones
-   // escribir la solución
-
-   return true;
+  // leer los datos de la entrada
+  int N; cin >> N;
+  if (N == 0)
+    return false;
+  
+  // resolver el caso posiblemente llamando a otras funciones
+  PriorityQueue<Paciente> queue;
+  char type;
+  for(int i = 0; i < N; i++){
+    cin >> type;
+    if(type == 'I'){
+      Paciente aux;
+      cin >> aux.nombre;
+      cin >> aux.gravedad;
+      aux.espera = i;
+      queue.push(aux);
+    }else if(type == 'A'){
+      Paciente aux = queue.top();
+      queue.pop();
+      cout << aux.nombre <<'\n';
+    }
+  }
+  // escribir la solución
+  cout << "---"<<'\n';
+  return true;
 }
 
 //@ </answer>
