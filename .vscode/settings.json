@@ -73,5 +73,6 @@
     "filesystem": "cpp",
     "iterator": "cpp",
     "utility": "cpp"
-  }
+  },
+  "C_Cpp.errorSquiggles": "disabled"
 }
