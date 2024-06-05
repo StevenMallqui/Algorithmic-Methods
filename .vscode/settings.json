@@ -72,7 +72,8 @@
     "memory_resource": "cpp",
     "filesystem": "cpp",
     "iterator": "cpp",
-    "utility": "cpp"
+    "utility": "cpp",
+    "execution": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }
