@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <deque>
 using namespace std;
 
 #include "DigrafoValorado.h"  // propios o los de las estructuras de datos de clase
@@ -34,6 +35,8 @@ private:
   int tiempoMin;
   vector<int> dist;
   IndexPQ<int> pq;
+  vector<AristaDirigida<int>> ulti;
+  deque<AristaDirigida<int>> caminoMin;
 
   void dijkstra(const DigrafoValorado<int> &d, int origen){
     dist[origen] = 0;
@@ -48,16 +51,35 @@ private:
   void relajar(AristaDirigida<int> a) {
     int v = a.desde(), w = a.hasta();
     if (dist[w] > dist[v] + a.valor()) {
-      dist[w] = dist[v] + a.valor();
+      dist[w] = dist[v] + a.valor(); ulti[w] = a;
       pq.update(w, dist[w]);
     }
   }
 
+   deque<AristaDirigida<int>> camino(int origen, int v) const {
+    deque<AristaDirigida<int>> cam;
+    // recuperamos el camino retrocediendo
+    AristaDirigida<int> a;
+    for (a = ulti[v]; a.desde() != origen; a = ulti[a.desde()])
+      cam.push_front(a);
+    cam.push_front(a);
+    return cam;
+  }
+
 public:
-  RapidEats(const DigrafoValorado<int> &d, int origen, int destino): existeCam(false), tiempoMin(0), dist(vector<int>(d.V(), INF)), pq(IndexPQ<int>(d.V())){
+  RapidEats(const DigrafoValorado<int> &d, int origen, int destino): existeCam(false), tiempoMin(0), dist(vector<int>(d.V(), INF)), pq(IndexPQ<int>(d.V())), ulti(d.V()){
     dijkstra(d, origen);
     existeCam = dist[destino] != INF;
     tiempoMin = dist[destino];
+    if(existeCam)
+      caminoMin = camino(origen, destino);
+  }
+
+  void imprimeCamino(){
+    for(auto a : caminoMin){
+      cout << a.desde() + 1 << " -> ";
+    }
+    cout << caminoMin.back().hasta() + 1;
   }
 
   int tiempoMinimo(){
@@ -69,7 +91,7 @@ public:
   }
 };
 
-// ARREGLAAAAR
+
 bool resuelveCaso() {
   
   // leer los datos de la entrada
@@ -90,8 +112,10 @@ bool resuelveCaso() {
   for(int i = 0; i < K; i++){
     cin >> origen >> destino;
     RapidEats sol(Deliciaville, origen - 1, destino - 1);
-    if(sol.hayCamino())
-      cout << sol.tiempoMinimo();
+    if(sol.hayCamino()){
+      cout << sol.tiempoMinimo() << ": "; 
+      sol.imprimeCamino();
+    }
     else
       cout << "NO LLEGA";
     
