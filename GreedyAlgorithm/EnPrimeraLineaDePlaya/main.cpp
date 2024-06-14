@@ -1,16 +1,16 @@
 
 /*@ <answer>
  *
- * Nombre y Apellidos: Steven Mallqui Aguilar
+ * Nombre y Apellidos:
  *
  *@ </answer> */
 
 #include <iostream>
 #include <fstream>
-#include <unordered_set>
-#include <set>
+#include <vector>
+#include <algorithm>
 using namespace std;
-// propios o los de las estructuras de datos de clase
+ // propios o los de las estructuras de datos de clase
 
 /*@ <answer>
   
@@ -26,34 +26,43 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-int voraz(long long int suma, long long S, long long N){
-  long long mas = N;
-  for(long long i = 1; i < S; i++){
-    long long y = S - i;
-    if(i < y){
-      mas++;
-      suma -= y;
-      suma += mas;
-    }
+struct edificio{
+  int ini, fin;
+};
+
+bool operator<(edificio const&a, edificio const&b){
+  return a.fin < b.fin;
+}
+
+int voraz(vector<edificio> &v){
+  sort(v.begin(), v.end());
+  int pasadizos = v.size(), i = 1;
+  int ultimo = v[0].fin;
+
+  while(i < v.size()){
+    if(v[i].ini < ultimo)
+      pasadizos--;
+    else
+      ultimo = v[i].fin;
+    i++;
   }
 
-  return suma;
+  return pasadizos;
 }
 
 bool resuelveCaso() {
    
   // leer los datos de la entrada
-  long long N; cin >> N;
-  if (!std::cin)  // fin de la entrada
+  int N; cin >> N;
+  if (N == 0)
     return false;
   
-  long long S; cin >> S;
-  long long int suma = 0;
-  for(long long  i = 1; i <= N; i++){
-    suma += i;
+  vector<edificio> v(N);
+  for(int i = 0; i < N; i++){
+    cin >> v[i].ini >> v[i].fin;
   }
 
-  cout << voraz(suma, S, N) <<'\n';
+  cout << voraz(v) <<'\n';
   return true;
 }
 
@@ -72,6 +81,7 @@ int main() {
    // para dejar todo como estaba al principio
 #ifndef DOMJUDGE
    std::cin.rdbuf(cinbuf);
+   system("PAUSE");
 #endif
    return 0;
 }
