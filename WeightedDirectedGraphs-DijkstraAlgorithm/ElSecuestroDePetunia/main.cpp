@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <set>
 using namespace std;
 
 #include "DigrafoValorado.h"  // propios o los de las estructuras de datos de clase
@@ -28,32 +29,22 @@ using namespace std;
 const int INF = std::numeric_limits<int>::max();
 class Secuestro{
   private:
-    int pueblosSospechosos;
     int distancia;
     vector<int> dist;
     IndexPQ<int> pq;
-    vector<bool> visit;
+    set<int> pueblos;
 
-    int dijkstra(DigrafoValorado<int> const& g, int origen){
-      int cont = 0;
-      dist[origen] = 0;
-      pq.push(origen, 0);
+    void dijkstra(DigrafoValorado<int> const& g){
       while (!pq.empty()) {
         int v = pq.top().elem;
+        pq.pop();
         if (dist[v] <= distancia){
-          pq.pop();
-          if(!visit[v]){
-            visit[v] = true;
-            cont++;
-          }
+          pueblos.insert(v);
           for (auto a : g.ady(v)) {
-              if(dist[v] + a.valor() <= distancia)
                 relajar(a);
           }
-        }else
-          break;
+        }
       }
-      return cont;
     }
 
     void relajar(AristaDirigida<int> a) {
@@ -64,14 +55,16 @@ class Secuestro{
       }
     }
   public:
-    Secuestro(const DigrafoValorado<int>& g, int D, const vector<int>& borriquines): pueblosSospechosos(0), distancia(D), dist(g.V(), INF), pq(g.V()), visit(g.V(), false){
-      for(int i = 0; i < borriquines.size(); i++){
-        pueblosSospechosos += dijkstra(g, borriquines[i]);
+    Secuestro(const DigrafoValorado<int>& g, int D, const vector<int>& origenes): distancia(D), dist(g.V(), INF), pq(g.V()){
+      for(int i = 0; i < origenes.size(); i++){
+        dist[origenes[i]] = 0;
+        pq.push(origenes[i], 0);
       }
+      dijkstra(g);
     }
 
   int sospechosos(){
-    return pueblosSospechosos;
+    return pueblos.size();
   }
 };
 
@@ -92,16 +85,15 @@ bool resuelveCaso() {
   }
 
   int B; cin >> B;
-  int pueblos = 0;
-  vector<int> burr;
+  vector<int> origenes(B);
   for(int i = 0; i < B; i++){
     cin >> origen;
-    burr.push_back(origen - 1);
+    origenes[i] = origen-1;
   }
-  Secuestro sol(mapa, D, burr);
-  pueblos = sol.sospechosos();
 
-  cout << pueblos <<'\n';
+  Secuestro sol(mapa, D, origenes);
+
+  cout << sol.sospechosos() <<'\n';
   return true;
 }
 

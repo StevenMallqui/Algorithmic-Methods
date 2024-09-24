@@ -1,7 +1,7 @@
 
 /*@ <answer>
  *
- * Nombre y Apellidos:
+ * Nombre y Apellidos: Steven Mallqui Aguilar
  *
  *@ </answer> */
 
@@ -24,41 +24,56 @@ using namespace std;
 // Escribe el código completo de tu solución aquí debajo
 // ================================================================
 //@ <answer>
-struct Paciente{
-  string nombre;
-  int gravedad, espera;
+
+struct Candidatura{
+  int indice;
+  int votos;
+  float coeficiente;
 };
 
-bool operator<(Paciente const&a, Paciente const&b){
-  return b.gravedad < a.gravedad || (a.gravedad == b.gravedad && a.espera < b.espera);
+bool operator<(const Candidatura &a, const Candidatura &b){
+  return b.coeficiente < a.coeficiente || (a.coeficiente == b.coeficiente && b.votos < a.votos) || (a.coeficiente == b.coeficiente && a.votos == b.votos && a.indice < b.indice);
 }
 
+void escanos_asignados(PriorityQueue<Candidatura> &candidaturas, const int &N, const int &C){
+  vector<int> escanos(C, 0);
+  Candidatura aux;
+
+  for(int i = 0; i < N; i++){
+    aux = candidaturas.top();
+    candidaturas.pop();
+    escanos[aux.indice-1]++;
+    aux.coeficiente = float(aux.votos)/(1+escanos[aux.indice-1]);
+    candidaturas.push(aux);
+  }
+
+  cout << escanos[0];
+
+  for(int i = 1; i < C; i++){
+    cout << ' ' << escanos[i];
+  }
+
+  cout << '\n';
+} 
+
 bool resuelveCaso() {
-   
+  
   // leer los datos de la entrada
-  int N; cin >> N;
-  if (N == 0)
+  int C, N; cin >> C >> N;
+  if (C == 0 && N == 0)
     return false;
   
   // resolver el caso posiblemente llamando a otras funciones
-  PriorityQueue<Paciente> queue;
-  char type;
-  for(int i = 0; i < N; i++){
-    cin >> type;
-    if(type == 'I'){
-      Paciente aux;
-      cin >> aux.nombre;
-      cin >> aux.gravedad;
-      aux.espera = i;
-      queue.push(aux);
-    }else if(type == 'A'){
-      Paciente aux = queue.top();
-      queue.pop();
-      cout << aux.nombre <<'\n';
-    }
+  PriorityQueue<Candidatura> candidaturas;
+  int votos;
+  for(int i = 0; i < C; i++){
+    cin >> votos;
+    candidaturas.push({i+1, votos, float(votos)});
   }
+  
   // escribir la solución
-  cout << "---"<<'\n';
+  escanos_asignados(candidaturas, N, C);
+
   return true;
 }
 
