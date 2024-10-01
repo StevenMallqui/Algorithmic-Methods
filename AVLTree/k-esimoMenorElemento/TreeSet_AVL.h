@@ -33,9 +33,9 @@ protected:
    struct TreeNode {
       T elem;
       Link iz, dr;
-      int altura;
+      int altura, tam_i;
       TreeNode(T const& e, Link i = nullptr, Link d = nullptr,
-               int alt = 1) : elem(e), iz(i), dr(d), altura(alt) {}
+               int alt = 1) : elem(e), iz(i), dr(d), altura(alt), tam_i(1) {}
    };
 
    // puntero a la raíz de la estructura jerárquica de nodos
@@ -90,6 +90,23 @@ public:
       return borra(e, raiz);
    }
 
+   T const& kesimo(int k) const{
+      auto ptr = raiz; 
+      int n = k;
+
+      while(n != ptr->tam_i){
+         if(n < ptr->tam_i){
+            ptr = ptr->iz;
+         }else if(n > ptr->tam_i){
+            n -= ptr->tam_i;
+            if(ptr->dr == nullptr) throw out_of_range("??");
+            ptr = ptr->dr;
+         }
+      }
+
+      return ptr->elem;
+   }
+
 protected:
 
    void copia(Set const& other) {
@@ -134,7 +151,10 @@ protected:
          crece = true;
       } else if (menor(e, a->elem)) {
          crece = inserta(e, a->iz);
-         if (crece) reequilibraDer(a);
+         if (crece){
+            a->tam_i++;
+            reequilibraDer(a);
+         } 
       } else if (menor(a->elem, e)) {
          crece = inserta(e, a->dr);
          if (crece) reequilibraIzq(a);
@@ -151,6 +171,7 @@ protected:
    void rotaDer(Link & r2) {
       Link r1 = r2->iz;
       r2->iz = r1->dr;
+      r2->tam_i -= r1->tam_i;
       r1->dr = r2;
       r2->altura = std::max(altura(r2->iz), altura(r2->dr)) + 1;
       r1->altura = std::max(altura(r1->iz), altura(r1->dr)) + 1;
@@ -161,6 +182,7 @@ protected:
       Link r2 = r1->dr;
       r1->dr = r2->iz;
       r2->iz = r1;
+      r2->tam_i += r1->tam_i;
       r1->altura = std::max(altura(r1->iz), altura(r1->dr)) + 1;
       r2->altura = std::max(altura(r2->iz), altura(r2->dr)) + 1;
       r1 = r2;
@@ -213,6 +235,7 @@ protected:
       if (a != nullptr) {
          if (menor(e, a->elem)) {
             decrece = borra(e, a->iz);
+            a->tam_i--;
             if (decrece) reequilibraIzq(a);
          }
          else if (menor(a->elem, e)) {

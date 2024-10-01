@@ -7,8 +7,9 @@
 
 #include <iostream>
 #include <fstream>
+#include <queue>
+#include <cmath>
 using namespace std;
-#include "BinTree.h"  // propios o los de las estructuras de datos de clase
 
 /*@ <answer>
   
@@ -24,48 +25,50 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-struct Solution{
-  bool is_avl;
-  int height, max, min;
+struct Grupo{
+  int maximo;
+  int instrumentos;
+  int partituras = 1;
 };
 
-Solution is_AVL(BinTree<int> tree){
-  if(tree.empty())
-    return {true, 0, -1, -1};
-  else{
-    Solution left = is_AVL(tree.left());
-    Solution right = is_AVL(tree.right());
-
-    bool is_avl = (abs(left.height - right.height) <= 1) && left.is_avl && right.is_avl 
-                    && (left.max < tree.root() || left.max == -1) && (right.min > tree.root() || right.min == -1);    
-    
-    int mx, mn;
-    if(tree.right().empty())
-      mx = tree.root();
-    else
-      mx = right.max;
-
-    if(tree.left().empty())
-      mn = tree.root();
-    else
-      mn = left.min;
-
-    return {is_avl, max(left.height, right.height) + 1, mx, mn};
-  }
+bool operator<( const Grupo &a, const Grupo &b){
+  return a.maximo < b.maximo;
 }
 
-void resuelveCaso() {
+void atril_mas_compartido(priority_queue<Grupo> &grupos, const int &resto){
+  for(int i = 0; i < resto; i++){
+    Grupo aux = grupos.top();
+    grupos.pop();
+
+    aux.partituras++;
+    aux.maximo = ceil(float(aux.instrumentos) / aux.partituras);
+    grupos.push(aux);
+  }
+
+  cout << grupos.top().maximo <<'\n';
+}
+
+bool resuelveCaso() {
    
   // leer los datos de la entrada
-  BinTree<int> tree = read_tree<int>(cin);
+  int p, n; cin >> p >> n;
+  if (!std::cin)  // fin de la entrada
+    return false;
   
+  priority_queue<Grupo> grupos;
+  int num;
+
+  for(int i = 0; i < n; i++){
+    cin >> num;
+    grupos.push({num, num});
+  }
+
   // resolver el caso posiblemente llamando a otras funciones
   // escribir la solución
-  Solution result = is_AVL(tree);
-  if(result.is_avl)
-    cout << "SI" << endl;
-  else
-    cout << "NO" << endl;
+
+  atril_mas_compartido(grupos, p-n);
+
+  return true;
 }
 
 //@ </answer>
@@ -78,10 +81,7 @@ int main() {
    auto cinbuf = std::cin.rdbuf(in.rdbuf());
 #endif
    
-   int numCasos;
-   std::cin >> numCasos;
-   for (int i = 0; i < numCasos; ++i)
-      resuelveCaso();
+   while (resuelveCaso());
    
    // para dejar todo como estaba al principio
 #ifndef DOMJUDGE
