@@ -1,15 +1,15 @@
 
 /*@ <answer>
  *
- * Nombre y Apellidos:
+ * Nombre y Apellidos: Steven Mallqui
  *
  *@ </answer> */
 
 #include <iostream>
 #include <fstream>
+#include <queue>
+#include <string>
 using namespace std;
-
-#include "PriorityQueue.h"  // propios o los de las estructuras de datos de clase
 
 /*@ <answer>
   
@@ -24,41 +24,44 @@ using namespace std;
 // Escribe el código completo de tu solución aquí debajo
 // ================================================================
 //@ <answer>
-struct Paciente{
+
+struct paciente{
   string nombre;
-  int gravedad, espera;
+  int gravedad, tiempo;
 };
 
-bool operator<(Paciente const&a, Paciente const&b){
-  return b.gravedad < a.gravedad || (a.gravedad == b.gravedad && a.espera < b.espera);
+bool operator< (const paciente &a, const paciente &b){
+  return a.gravedad < b.gravedad || (a.gravedad == b.gravedad && b.tiempo < a.tiempo);
 }
 
 bool resuelveCaso() {
    
   // leer los datos de la entrada
-  int N; cin >> N;
-  if (N == 0)
+  int n; cin >> n;
+  if (n == 0)
     return false;
   
+  priority_queue<paciente> urgencias;
+
   // resolver el caso posiblemente llamando a otras funciones
-  PriorityQueue<Paciente> queue;
-  char type;
-  for(int i = 0; i < N; i++){
-    cin >> type;
-    if(type == 'I'){
-      Paciente aux;
-      cin >> aux.nombre;
-      cin >> aux.gravedad;
-      aux.espera = i;
-      queue.push(aux);
-    }else if(type == 'A'){
-      Paciente aux = queue.top();
-      queue.pop();
-      cout << aux.nombre <<'\n';
+  // escribir la solución
+  
+  char tipo;
+  paciente aux;
+  for(int i = 0; i < n; i++){
+    cin >> tipo;
+    if(tipo == 'I'){
+      cin >> aux.nombre >> aux.gravedad;
+      aux.tiempo = i;
+      urgencias.push(aux);
+    }else if(tipo == 'A'){
+      aux = urgencias.top();
+      urgencias.pop();
+      cout << aux.nombre << '\n';
     }
   }
-  // escribir la solución
-  cout << "---"<<'\n';
+
+  cout << "---\n";
   return true;
 }
 
