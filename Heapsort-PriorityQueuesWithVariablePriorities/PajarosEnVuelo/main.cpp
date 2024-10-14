@@ -25,34 +25,34 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-void horas_de_vuelo(priority_queue<int> &largeV, priority_queue<int> &smallV, const int &drones){
-  int horas = 0, smallT, largeT;
-  while (!smallV.empty() && !largeV.empty()){
-    vector<int> smallUsadas, largeUsadas;
-    for(int i = 0; i < drones && !smallV.empty() && !largeV.empty(); i++){
-      smallT = smallV.top();
-      largeT = largeV.top();
-      smallV.pop();
-      largeV.pop();
-
-      if(smallT > largeT){
-        smallUsadas.push_back(smallT-largeT);
-        horas += largeT;
-      }else if(smallT < largeT){
-        largeUsadas.push_back(largeT-smallT);
-        horas += smallT;
-      }else{
-        horas += smallT;
-      }
+void pajaro_en_primera_posicion(priority_queue<int> &pequenos, priority_queue<int, vector<int>,greater<int>> &grandes, const int &parejas, int&primero){
+  int edad;
+  for(int i = 0; i < parejas; i++){
+    int j = 2; 
+    while(j > 0){
+      cin >> edad;
+      if(edad > primero)
+        grandes.push(edad);
+      else
+        pequenos.push(edad);
+      
+      j--;
     }
 
-    cout << horas << ' ';
-    horas = 0;
-    for(int a : smallUsadas)
-      smallV.push(a);
-    
-    for(int b : largeUsadas)
-      largeV.push(b);
+    if(pequenos.size() > grandes.size()){
+      grandes.push(primero);
+      primero = pequenos.top();
+      pequenos.pop();
+    }
+    else if(pequenos.size() < grandes.size()){
+      pequenos.push(primero);
+      primero = grandes.top();
+      grandes.pop();
+    }
+
+    cout << primero;
+    if(i < parejas - 1)
+      cout << ' ';
   }
 
   cout << '\n';
@@ -61,28 +61,16 @@ void horas_de_vuelo(priority_queue<int> &largeV, priority_queue<int> &smallV, co
 bool resuelveCaso() {
    
   // leer los datos de la entrada
-  int N, A, B; cin >> N;
-  if (!std::cin)  // fin de la entrada
+  int primero, parejas; cin >> primero >> parejas;
+  if (primero == 0 && parejas == 0)
     return false;
   
-  cin >> A >> B;
-  priority_queue<int> largeV;
-  priority_queue<int> smallV;
-
-  int pila;
-  for(int i = 0; i < A; i++){
-    cin >> pila;
-    largeV.push(pila);
-  } 
-
-  for(int i = 0; i < B; i++){
-    cin >> pila;
-    smallV.push(pila);
-  } 
+  priority_queue<int> pequenos;
+  priority_queue<int, vector<int>,greater<int>> grandes;
 
   // resolver el caso posiblemente llamando a otras funciones
   // escribir la solución
-  horas_de_vuelo(largeV, smallV, N);
+  pajaro_en_primera_posicion(pequenos, grandes, parejas, primero);
 
   return true;
 }

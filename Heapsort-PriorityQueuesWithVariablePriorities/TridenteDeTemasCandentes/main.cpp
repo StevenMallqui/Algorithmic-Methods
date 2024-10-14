@@ -1,12 +1,14 @@
 
 /*@ <answer>
  *
- * Nombre y Apellidos:
+ * Nombre y Apellidos: Steven Mallqui
  *
  *@ </answer> */
 
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <stack>
 using namespace std;
 
 #include "IndexPQ.h"  // propios o los de las estructuras de datos de clase
@@ -24,78 +26,69 @@ using namespace std;
 // Escribe el código completo de tu solución aquí debajo
 // ================================================================
 //@ <answer>
-struct tweets{
-  int citas, tiempoAct;
+struct tweet{
+  int citas = 0, tiempoAct;
 };
 
-bool operator<(tweets const& a, tweets const&b){
-  return a.citas > b.citas || (a.citas == b.citas && a.tiempoAct < b.tiempoAct);
+bool operator<(const tweet &a, const tweet &b){
+  return b.citas < a.citas || (a.citas == b.citas && b.tiempoAct < a.tiempoAct);
 }
-
+ 
 bool resuelveCaso() {
-  
+   
   // leer los datos de la entrada
   int N; cin >> N;
   if (!std::cin)  // fin de la entrada
     return false;
   
-  IndexPQ<string, tweets> cola; 
-  unordered_map<string, tweets> preCola;
+  // resolver el caso posiblemente llamando a otras funciones
+  // escribir la solución
+  IndexPQ<string, tweet> cola; 
+  unordered_map<string, tweet> preCola;
   string opcion, nombre; 
   int citas;
+
   // resolver el caso posiblemente llamando a otras funciones
   for(int i = 0; i < N; i++){
     cin >> opcion;
-    if(opcion == "C"){ 
-      cin >> nombre; cin >> citas;
-      if(preCola.find(nombre) != preCola.end()){
-        preCola[nombre].citas += citas;
-        preCola[nombre].tiempoAct = i;
+    
+    if(opcion != "TC"){ 
+      cin >> nombre >> citas;
+
+      if (opcion == "E")
+        citas = -citas;
+
+      if(preCola.find(nombre) == preCola.end()){
+        preCola[nombre] = {citas, i};
+        cola.push(nombre, preCola[nombre]);
       }else{
-        preCola.insert({nombre, {citas, 0}});
+        tweet &prio = preCola[nombre];  // Referencia directa para evitar búsquedas repetidas
+        prio.tiempoAct = i;
+        prio.citas += citas;
+        cola.update(nombre, prio);
+      }
+    }else{
+      stack<string> top;
+      int tam = cola.size();
+
+      for (int i = 0; i < 3 && i < tam; i++) {
+        auto aux = cola.top();
+        if (aux.prioridad.citas != 0)
+            cout << i + 1 << " " << aux.elem << "\n";
+        top.push(aux.elem);
+        cola.pop();
       }
 
-      cola.update(nombre, preCola[nombre]);
-
-    }else if(opcion == "E"){
-      cin >> nombre; cin >> citas;
-      if(preCola.find(nombre) != preCola.end()){
-        preCola[nombre].citas -= citas;
-        preCola[nombre].tiempoAct = i;
-      }else{
-        preCola.insert({nombre, {citas, 0}});
+      while (!top.empty()) {
+          string t = top.top();
+          top.pop();
+          cola.push(t, preCola[t]);
       }
-
-      cola.update(nombre, preCola[nombre]);
-
-    }else if(opcion == "TC"){
-
-      string primero, segundo;
-      bool prim = false, secon = false;
-
-      if(!cola.empty()){
-        primero = cola.top().elem; cola.pop();
-        prim = true;
-        cout << "1 " << primero << '\n';
-      }
-
-      if(!cola.empty()){
-        segundo = cola.top().elem; cola.pop();
-        secon = true;
-        cout << "2 " << segundo << '\n';
-      }
-
-      if(!cola.empty()){
-        cout << "3 " << cola.top().elem << '\n';
-      }
-
-      if(prim) cola.push(primero, preCola[primero]);
-      if(prim) cola.push(segundo, preCola[segundo]);
-
     }
   }
-  // escribir la solución
-  cout << "---" <<'\n';
+
+  cout << "---\n";
+
   return true;
 }
 

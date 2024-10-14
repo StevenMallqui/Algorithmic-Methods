@@ -97,6 +97,13 @@ public:
       }
    }
 
+   T const& priority(ID e) const {
+      if (!posiciones.count(e)){
+         throw std::domain_error("No se puede consultar la prioridad de un elemento que no ha sido insertado aún.");
+      }
+      return array[posiciones.at(e)].prioridad;
+   }
+
 private:
    
    void flotar(int i) {
