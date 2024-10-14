@@ -1,12 +1,13 @@
 
 /*@ <answer>
  *
- * Nombre y Apellidos:
+ * Nombre y Apellidos: Steven Mallqui Aguilar
  *
  *@ </answer> */
 
 #include <iostream>
 #include <fstream>
+#include <vector>
 using namespace std;
 
 #include "Grafo.h"  // propios o los de las estructuras de datos de clase
@@ -26,46 +27,55 @@ using namespace std;
 //@ <answer>
 
 class ArbolLibre {
-public: 
-   ArbolLibre(Grafo const& g) : visit(g.V(), false), V(g.V()), A(g.A()){
-      dfs(g, 0);
-   }
-  
-   bool libre() const {
-      return (V == tam) && (A == V - 1);
-   }
+  private:
+    vector<bool> visit; 
+    int components, V, A; 
 
-private:
-   std::vector<bool> visit; 
-   int tam = 0, V, A;
-
-   void dfs(Grafo const& G, int v) {
-      tam++;
+    void dfs(Grafo const& G, int v) {
       visit[v] = true;
-      for (int w : G.ady(v)) {
-         if (!visit[w]) {
-            dfs(G, w);
-         }
-      }
-   }
+      components++;
+      for (int w : G.ady(v))
+        if (!visit[w])
+          dfs(G, w);
+    }
+
+  public:
+    ArbolLibre(Grafo const& g, const int &V, const int &A) : visit(g.V(), false), components(0), V(V), A(A) {
+      dfs(g, 0);
+    }
+
+    bool esLibre(){
+      return (V == components) && (A == V - 1);
+    }
+
 };
 
 bool resuelveCaso() {
-   
-   // leer los datos de la entrada
-   Grafo g(cin);
-   
-   if (!std::cin)  // fin de la entrada
-      return false;
+  
+  // leer los datos de la entrada
+  int V; cin >> V;
+  if (!std::cin)  // fin de la entrada
+    return false;
+  
+  int A; cin >> A;
+  Grafo arbol(V);
 
-   // resolver el caso posiblemente llamando a otras funciones
-   ArbolLibre ab(g);
+  int v, w;
+  for(int i = 0; i < A; i++){
+    cin >> v >> w;
+    arbol.ponArista(v , w);
+  }
 
-   // escribir la solución
-   if(ab.libre()) cout << "SI" << '\n';
-   else cout << "NO" << '\n';
+  // resolver el caso posiblemente llamando a otras funciones
+  ArbolLibre sol(arbol, V, A);
 
-   return true;
+  // escribir la solución
+  if(sol.esLibre())
+    cout << "SI\n";
+  else 
+    cout << "NO\n";
+
+  return true;
 }
 
 //@ </answer>
