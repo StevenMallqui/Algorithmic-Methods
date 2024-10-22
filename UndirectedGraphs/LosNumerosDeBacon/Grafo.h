@@ -1,7 +1,7 @@
 //
-//  Digrafo.h
+//  Grafo.h
 //
-//  ImplementaciÃ³n de grafos dirigidos
+//  ImplementaciÃ³n de grafos no dirigidos
 //
 //  Facultad de InformÃ¡tica
 //  Universidad Complutense de Madrid
@@ -9,33 +9,33 @@
 //  Copyright (c) 2020  Alberto Verdejo
 //
 
-#ifndef DIGRAFO_H_
-#define DIGRAFO_H_
+#ifndef GRAFO_H_
+#define GRAFO_H_
 
 #include <iostream>
-#include <stdexcept>
 #include <vector>
+#include <iostream>
+#include <stdexcept>
 
 using Adys = std::vector<int>;  // lista de adyacentes a un vÃ©rtice
 
-class Digrafo {
-   
-   int _V;   // nÃºmero de vÃ©rtices
-   int _A;   // nÃºmero de aristas
-   std::vector<Adys> _ady;   // vector de listas de adyacentes
-   
+class Grafo {
+private:
+   int _V;  // nÃºmero de vÃ©rtices
+   int _A;  // nÃºmero de aristas
+   std::vector<Adys> _ady;  // vector de listas de adyacentes
 public:
    
    /**
-    * Crea un grafo dirigido con V vÃ©rtices.
+    * Crea un grafo con V vÃ©rtices.
     */
-   Digrafo(int V) : _V(V), _A(0), _ady(_V) {}
+   Grafo(int V) : _V(V), _A(0), _ady(_V) {}
    
    /**
-    * Crea un grafo dirigido a partir de los datos en el flujo de entrada (si puede).
+    * Crea un grafo a partir de los datos en el flujo de entrada (si puede).
     * primer es el Ã­ndice del primer vÃ©rtice del grafo en el entrada.
     */
-   Digrafo(std::istream & flujo, int primer = 0) : _A(0) {
+   Grafo(std::istream & flujo, int primer = 0) : _A(0) {
       flujo >> _V;
       if (!flujo) return;
       _ady.resize(_V);
@@ -46,7 +46,7 @@ public:
          ponArista(v - primer, w - primer);
       }
    }
-
+   
    /**
     * Devuelve el nÃºmero de vÃ©rtices del grafo.
     */
@@ -58,7 +58,7 @@ public:
    int A() const { return _A; }
    
    /**
-    * AÃ±ade la arista dirigida v-w al grafo.
+    * AÃ±ade la arista v-w al grafo.
     * @throws domain_error si algÃºn vÃ©rtice no existe
     */
    void ponArista(int v, int w) {
@@ -66,18 +66,16 @@ public:
          throw std::domain_error("Vertice inexistente");
       ++_A;
       _ady[v].push_back(w);
+      _ady[w].push_back(v);
    }
-   
-   
-   /**
-    * Comprueba si hay arista de u a v.
-    */
-   bool hayArista(int u, int v) const {
-      for (int w : _ady[u])
-         if (w == v) return true;
+
+   bool hayArista(int v, int w) const {
+      if (v < 0 || v >= _V || w < 0 || w >= _V)
+         throw std::domain_error("Vertice inexistente");
+      for (auto u : _ady[v])
+         if (u == w) return true;
       return false;
    }
-   
    
    /**
     * Devuelve la lista de adyacencia de v.
@@ -89,25 +87,10 @@ public:
       return _ady[v];
    }
    
-   
-   /**
-    * Devuelve el grafo dirigido inverso.
-    */
-   Digrafo inverso() const {
-      Digrafo inv(_V);
-      for (int v = 0; v < _V; ++v) {
-         for (int w : _ady[v]) {
-            inv.ponArista(w, v);
-         }
-      }
-      return inv;
-   }
-   
-   
    /**
     * Muestra el grafo en el stream de salida o (para depurar)
     */
-   void print(std::ostream& o = std::cout) const {
+   void print(std::ostream & o = std::cout) const {
       o << _V << " vÃ©rtices, " << _A << " aristas\n";
       for (int v = 0; v < _V; ++v) {
          o << v << ": ";
@@ -117,16 +100,14 @@ public:
          o << "\n";
       }
    }
-   
 };
 
 /**
- * Para mostrar grafos por la salida estÃ¡ndar.
+ * Para mostrar grafos por la salida estÃ¡ndar
  */
-inline std::ostream & operator<<(std::ostream & o, Digrafo const& g) {
+inline std::ostream & operator<<(std::ostream & o, Grafo const& g){
    g.print(o);
    return o;
 }
 
-
-#endif /* DIGRAFO_H_ */
+#endif /* GRAFO_H_ */
