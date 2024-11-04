@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <limits>
 #include <set>
 using namespace std;
 
@@ -27,7 +28,7 @@ using namespace std;
 // ================================================================
 //@ <answer>
 const int INF = std::numeric_limits<int>::max();
-class Secuestro{
+class PueblosSospechosos{
   private:
     int distancia;
     vector<int> dist;
@@ -55,10 +56,10 @@ class Secuestro{
       }
     }
   public:
-    Secuestro(const DigrafoValorado<int>& g, int D, const vector<int>& origenes): distancia(D), dist(g.V(), INF), pq(g.V()){
-      for(int i = 0; i < origenes.size(); i++){
-        dist[origenes[i]] = 0;
-        pq.push(origenes[i], 0);
+    PueblosSospechosos(const DigrafoValorado<int>& g, int D, const vector<int>& borriquines): distancia(D), dist(g.V(), INF), pq(g.V()){
+      for(long unsigned int i = 0; i < borriquines.size(); i++){
+        dist[borriquines[i]] = 0;
+        pq.push(borriquines[i], 0);
       }
       dijkstra(g);
     }
@@ -85,13 +86,13 @@ bool resuelveCaso() {
   }
 
   int B; cin >> B;
-  vector<int> origenes(B);
+  vector<int> borriquines(B);
   for(int i = 0; i < B; i++){
     cin >> origen;
-    origenes[i] = origen-1;
+    borriquines[i] = origen-1;
   }
 
-  Secuestro sol(mapa, D, origenes);
+  PueblosSospechosos sol(mapa, D, borriquines);
 
   cout << sol.sospechosos() <<'\n';
   return true;

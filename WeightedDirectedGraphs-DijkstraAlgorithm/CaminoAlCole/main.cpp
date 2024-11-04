@@ -1,17 +1,19 @@
 
 /*@ <answer>
  *
- * Nombre y Apellidos:
+ * Nombre y Apellidos: Steven Mallqui Aguilar
  *
  *@ </answer> */
 
 #include <iostream>
 #include <fstream>
-#include <vector>
+#include <limits>
+
 using namespace std;
 
 #include "DigrafoValorado.h"  // propios o los de las estructuras de datos de clase
 #include "IndexPQ.h"
+
 /*@ <answer>
   
  Escribe aquí un comentario general sobre la solución, explicando cómo
@@ -27,63 +29,67 @@ using namespace std;
 //@ <answer>
 const int INF = numeric_limits<int>::max();
 
-class CaminoCole{
+template <typename Valor>
+class Dijkstra {
+ private:
+    const Valor INF = std::numeric_limits<Valor>::max();
+    int origen;
+    std::vector<Valor> dist;
+    IndexPQ<Valor> pq;
+    vector<int> caminos;
 
-private:
-  int formas;
-  vector<int> cam;
-  vector<int> dist;
-  IndexPQ<int> pq;
-
-  void dijkstra(const DigrafoValorado<int> &g, int origen){
-    dist[origen] = 0;
-    cam[0] = 1;
-    pq.push(origen, 0);
-    while (!pq.empty()) {
-      int v = pq.top().elem; pq.pop();
-      for (auto a : g.ady(v))
-        relajar(a);
+    void relajar(AristaDirigida<Valor> a) {
+      int v = a.desde(), w = a.hasta();
+      if (dist[w] > dist[v] + a.valor()) {
+        dist[w] = dist[v] + a.valor();
+        pq.update(w, dist[w]);
+        caminos[w] = caminos[v];
+      }else if(dist[w] == dist[v] + a.valor()){
+        caminos[w] += caminos[v];
+      }
     }
-  }
 
-  void relajar(AristaDirigida<int> a) {
-    int v = a.desde(), w = a.hasta();
-    if (dist[w] > dist[v] + a.valor()) {
-      dist[w] = dist[v] + a.valor();
-      cam[w] = cam[v];
-      pq.update(w, dist[w]);
-    }else if (dist[w] == dist[v] + a.valor())
-      cam[w] += cam[v];
-  }
+  public:
+    Dijkstra(DigrafoValorado<Valor> const& g, int orig) : origen(orig),
+      dist(g.V(), INF), pq(g.V()), caminos(g.V(), 0) {
+      dist[origen] = 0;
+      caminos[origen] = 1;
+      pq.push(origen, 0);
+      while (!pq.empty()) {
+        int v = pq.top().elem; pq.pop();
+        for (auto a : g.ady(v))
+          relajar(a);
+      }
+    }
 
-public:
-  CaminoCole(const DigrafoValorado<int> &g): pq(IndexPQ<int>(g.V())), formas(0), dist(vector<int>(g.V(), INF)), cam(vector<int>(g.V(), 0)){
-    dijkstra(g, 0);
-    formas = cam[g.V() - 1];
-  }
+    bool hayCamino(int v) const { return dist[v] != INF; }
 
-  int formasDistintas(){
-    return formas;
-  }
+    Valor distancia(int v) const { return dist[v]; }
+
+    int caminosDistintos(int n){
+      return caminos[n];
+    }
 };
 
 bool resuelveCaso() {
-   
-   // leer los datos de la entrada
+  
+  // leer los datos de la entrada
   int N; cin >> N;
   if (!std::cin)  // fin de la entrada
     return false;
   
+  int C; cin >> C;
+  int v, w, coste;
   DigrafoValorado<int> pueblo(N);
-  int C, origen, destino, longitud; cin >> C;
   for(int i = 0; i < C; i++){
-    cin >> origen >> destino >> longitud;
-    pueblo.ponArista({origen - 1, destino - 1, longitud});
-    pueblo.ponArista({destino - 1, origen - 1, longitud});
+    cin >> v >> w >> coste;
+    pueblo.ponArista({v-1, w-1, coste});
+    pueblo.ponArista({w-1, v-1, coste});
   }
-
-  CaminoCole sol(pueblo);
-  cout << sol.formasDistintas() << '\n';
+  // resolver el caso posiblemente llamando a otras funciones
+  // escribir la solución
+  Dijkstra<int> sol(pueblo, 0);
+  cout << sol.caminosDistintos(N-1) << '\n';
 
   return true;
 }
@@ -103,6 +109,7 @@ int main() {
    // para dejar todo como estaba al principio
 #ifndef DOMJUDGE
    std::cin.rdbuf(cinbuf);
+   system("PAUSE");
 #endif
    return 0;
 }

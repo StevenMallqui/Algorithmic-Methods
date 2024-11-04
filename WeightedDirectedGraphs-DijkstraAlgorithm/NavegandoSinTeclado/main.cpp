@@ -1,13 +1,16 @@
 
 /*@ <answer>
  *
- * Nombre y Apellidos:
+ * Nombre y Apellidos: Steven Mallqui Aguilar
  *
  *@ </answer> */
 
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <limits>
+
+
 using namespace std;
 
 #include "DigrafoValorado.h"  // propios o los de las estructuras de datos de clase
@@ -27,47 +30,37 @@ using namespace std;
 //@ <answer>
 const int INF = numeric_limits<int>::max();
 
-class Navegar{
+template <typename Valor>
+class Dijkstra {
+ private:
+    const Valor INF = std::numeric_limits<Valor>::max();
+    int origen;
+    std::vector<Valor> dist;
+    IndexPQ<Valor> pq;
+    vector<int> tiempoCarga;
 
-private:
-  vector<int> tiempoCarga;
-  vector<int> dist;
-  IndexPQ<int> pq;
-  int coste;
-  bool alcanzado;
-
-  void dijkstra(const DigrafoValorado<int> &d, int origen){
-    dist[origen] = tiempoCarga[0];
-    pq.push(origen, tiempoCarga[0]);
-    while (!pq.empty()) {
-      int v = pq.top().elem; pq.pop();
-      for (auto a : d.ady(v))
-        relajar(a);
+    void relajar(AristaDirigida<Valor> a) {
+      int v = a.desde(), w = a.hasta();
+      if (dist[w] > (dist[v] + a.valor() + tiempoCarga[v])) {
+        dist[w] = dist[v] + a.valor() + tiempoCarga[v];
+        pq.update(w, dist[w]);
+      }
     }
-  } 
 
-  void relajar(AristaDirigida<int> a) {
-    int v = a.desde(), w = a.hasta();
-    if (dist[w] > dist[v] + a.valor() + tiempoCarga[w]) {
-      dist[w] = dist[v] + a.valor() + tiempoCarga[w]; 
-      pq.update(w, dist[w]);
+  public:
+    Dijkstra(DigrafoValorado<Valor> const& g, int orig, const vector<int> &tiempoCarga) : origen(orig), dist(g.V(), INF), pq(g.V()), tiempoCarga(tiempoCarga) {
+      dist[origen] = 0;
+      pq.push(origen, 0);
+      while (!pq.empty()) {
+        int v = pq.top().elem; pq.pop();
+        for (auto a : g.ady(v))
+          relajar(a);
+      }
     }
-  }
 
-public: 
-  Navegar(const DigrafoValorado<int> &d, const vector<int> &c): tiempoCarga(c), dist(vector<int>(d.V(), INF)), pq(IndexPQ<int>(d.V())), coste(0), alcanzado(false){
-    dijkstra(d, 0);
-    alcanzado = dist[d.V()-1] != INF;
-    coste = dist[d.V()-1];
-  }
+    bool hayCamino(int v) const { return dist[v] != INF; }
 
-  bool esAlcanzado(){
-    return alcanzado;
-  }
-
-  int milisegundos(){
-    return coste;
-  }
+    Valor distancia(int v) const { return dist[v]; }
 };
 
 bool resuelveCaso() {
@@ -77,28 +70,26 @@ bool resuelveCaso() {
   if (N == 0)
     return false;
   
-  int elem;
-  vector<int> cargas;
-  for(int i = 0; i < N; i++){
-    cin >> elem;
-    cargas.push_back(elem);
+  vector<int> tiempoCarga(N);
+  for(int i = 0; i < N; i++)
+    cin >> tiempoCarga[i];
+
+  DigrafoValorado<int> navegacion(N);
+  int M; cin >> M;
+  int a, b, t;
+  for(int i = 0; i < M; i++){
+    cin >> a >> b >> t;
+    navegacion.ponArista({a-1, b-1, t});
   }
 
-  DigrafoValorado<int> historial(N);
-  int A, origen, destino, tiempo; cin >> A;
-  for(int i = 0; i < A; i++){
-    cin >> origen >> destino >> tiempo;
-    historial.ponArista({origen - 1, destino - 1, tiempo});
-  }
-
-  Navegar sol(historial, cargas);
-
-  if(sol.esAlcanzado())
-    cout << sol.milisegundos();
-  else
-    cout << "IMPOSIBLE";
-  
-  cout << "\n";
+  // resolver el caso posiblemente llamando a otras funciones
+  // escribir la solución
+  Dijkstra<int> sol(navegacion, 0, tiempoCarga);
+  if(sol.hayCamino(N-1))
+    cout << sol.distancia(N-1) + tiempoCarga[N-1] << '\n';
+  else 
+    cout << "Imposible\n";
+    
 
   return true;
 }
@@ -118,6 +109,7 @@ int main() {
    // para dejar todo como estaba al principio
 #ifndef DOMJUDGE
    std::cin.rdbuf(cinbuf);
+   system("PAUSE");
 #endif
    return 0;
 }

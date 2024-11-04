@@ -8,8 +8,6 @@
 #include <iostream>
 #include <fstream>
 #include <limits>
-#include <deque>
-
 using namespace std;
 
 #include "DigrafoValorado.h"  // propios o los de las estructuras de datos de clase
@@ -27,9 +25,6 @@ using namespace std;
 // Escribe el código completo de tu solución aquí debajo
 // ================================================================
 //@ <answer>
-const int INF = numeric_limits<int>::max();
-template <typename Valor>
-using Camino = deque<AristaDirigida<Valor>>; 
 
 template <typename Valor>
 class Dijkstra {
@@ -37,20 +32,18 @@ class Dijkstra {
     const Valor INF = std::numeric_limits<Valor>::max();
     int origen;
     std::vector<Valor> dist;
-    std::vector<AristaDirigida<Valor>> ulti;
     IndexPQ<Valor> pq;
 
     void relajar(AristaDirigida<Valor> a) {
       int v = a.desde(), w = a.hasta();
       if (dist[w] > dist[v] + a.valor()) {
-        dist[w] = dist[v] + a.valor(); ulti[w] = a;
+        dist[w] = dist[v] + a.valor();
         pq.update(w, dist[w]);
       }
     }
 
   public:
-    Dijkstra(DigrafoValorado<Valor> const& g, int orig) : origen(orig),
-    dist(g.V(), INF), ulti(g.V()), pq(g.V()) {
+    Dijkstra(DigrafoValorado<Valor> const& g, int orig) : origen(orig), dist(g.V(), INF), pq(g.V()) {
       dist[origen] = 0;
       pq.push(origen, 0);
       while (!pq.empty()) {
@@ -63,53 +56,50 @@ class Dijkstra {
     bool hayCamino(int v) const { return dist[v] != INF; }
 
     Valor distancia(int v) const { return dist[v]; }
-
-    Camino<Valor> camino(int v) const {
-      Camino<Valor> cam;
-      // recuperamos el camino retrocediendo
-      AristaDirigida<Valor> a;
-      for (a = ulti[v]; a.desde() != origen; a = ulti[a.desde()])
-        cam.push_front(a);
-      cam.push_front(a);
-      return cam;
-    }
 };
 
 bool resuelveCaso() {
-  
+   
   // leer los datos de la entrada
-  int N; cin >> N;
+  DigrafoValorado<int> comarca(cin, 1);
   if (!std::cin)  // fin de la entrada
     return false;
   
-  DigrafoValorado<int> ciudad(N);
-  int C; cin >> C;
-  int v, w, coste;
-  for(int i = 0; i < C; i++){
-    cin >> v >> w >> coste;
-    ciudad.ponArista({v-1, w-1, coste});
-    ciudad.ponArista({w-1, v-1, coste});
-  }
-
   // resolver el caso posiblemente llamando a otras funciones
   // escribir la solución
-  int K; cin >> K;
-  for(int i = 0; i < K; i++){
-    cin >> v >> w;
-    Dijkstra<int> sol(ciudad, v-1);
-    if(sol.hayCamino(w-1)){
-      cout << sol.distancia(w-1) << ": ";
-      auto cam = sol.camino(w-1);
-      for(auto a : cam)
-        cout << a.desde() + 1 << " -> ";
-      cout << cam.back().hasta() + 1;
-    }else
-      cout << "NO LLEGA";
-    
-    cout << '\n';
+  int O, P; cin >> O >> P;
+  Dijkstra<int> sol(comarca, O-1);
+  bool posible = true;
+  int esfuerzo = 0;
+  vector<int> repartos(P);
+
+  for(int i = 0; i < P; i++)
+    cin >> repartos[i];
+
+  for(int i = 0; i < P && posible; i++){
+    if(sol.hayCamino(repartos[i] - 1))
+      esfuerzo += sol.distancia(repartos[i] - 1);
+    else
+      posible = false;
   }
-  
-  cout << "---\n";
+
+  if(posible){
+    DigrafoValorado<int> inv = comarca.inverso();
+    Dijkstra<int> vuelta(inv, O-1);
+    
+    for(int i = 0; i < P && posible; i++){ 
+      if(vuelta.hayCamino(repartos[i] - 1))
+        esfuerzo += vuelta.distancia(repartos[i] - 1);
+      else
+        posible = false;
+    }
+  }
+
+  if(!posible)
+    cout << "Imposible\n";
+  else
+    cout << esfuerzo << '\n';
+
   return true;
 }
 
