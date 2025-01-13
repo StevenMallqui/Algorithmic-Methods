@@ -22,7 +22,8 @@ using namespace std;
 ---- PROBLEMA MATEMÁTICO ----
   
   . RECURSION .
-  maneras(i, j) = cuantas maneras hay de conseguir la cuerda con longitud j pudiendo usar los cordeles del 1 al i
+  maneras(i, j) = cuantas maneras hay de conseguir la cuerda con longitud j pudiendo usar los 
+  cordeles del 1 al i
 
   maneras(i, j) = { maneras(i-1, j)                       si Li > j
                   { maneras(i-1, j) + maneras(i-1, j-Li)  si Li <= j

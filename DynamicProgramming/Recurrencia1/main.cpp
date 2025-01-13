@@ -26,17 +26,25 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-pair<bool, EntInf> progDinamica(const int P, const vector<int> &v, const vector<int> &c){
-  vector<EntInf> solucion(P + 1, Infinito);
-  solucion[0] = EntInf(0);
+struct elemento{
+  int v, c;
+};
 
-  int N = v.size();
-  for(int i = 0; i < N; i++)
-    for(int j = P; j >= 0; j--)
-      for(int k = 1; k <= c[i] && k * v[i] <= j; k++)
-        solucion[j] = min(solucion[j], solucion[j - k * v[i]] + k);
+EntInf progDinamica(const int P, const vector<elemento> &elementos){
+  int N = elementos.size();
+  vector<EntInf> solucion(P+1, Infinito);
+  solucion[0] = 0;
 
-  return {solucion[P] != Infinito, solucion[P]};
+  for(int i = 1; i <= N; i++){
+    for(int j = P; j > 0; j--){
+      for(int k = 0; k <= min(elementos[i-1].c, j/elementos[i-1].v); k++){
+        EntInf temp = solucion[j - k * elementos[i-1].v] + k;
+        solucion[j] = min(solucion[j], temp);
+      }
+    }
+  }
+
+  return solucion[P];
 }
 
 bool resuelveCaso() {
@@ -46,20 +54,19 @@ bool resuelveCaso() {
   if (!std::cin)  // fin de la entrada
     return false;
   
-  vector<int> v(N);
+  vector<elemento> elementos(N);
   for(int i = 0; i < N; i++)
-    cin >> v[i];
+    cin >> elementos[i].v;
 
-  vector<int> c(N);
   for(int i = 0; i < N; i++)
-    cin >> c[i];
+    cin >> elementos[i].c;
 
   int P; cin >> P;
 
-  pair<bool, EntInf> sol = progDinamica(P, v, c);
+  EntInf sol = progDinamica(P, elementos);
 
-  if(sol.first)
-    cout << "SI " << sol.second;
+  if(sol != Infinito)
+    cout << "SI " << sol;
   else
     cout << "NO";
 
