@@ -16,7 +16,7 @@ struct comic{
    int id;
    int pila;
 
-   bool operator<(const comic &other) const{
+   bool opetator<(const comic &other) const{
       return other.id < id;
    }
 };
